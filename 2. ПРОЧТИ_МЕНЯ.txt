@@ -1,4 +1,9 @@
-СБОРКА ОСНОВАНА НА: https://github.com/bol-van/zapret-win-bundle
+##Нью гайд по Nekoray:
+https://telegra.ph/Polnoe-rukovodstvo-po-ispolzovaniyu-NekoRay-11-14
+https://telegra.ph/Instrukciya-po-podklyucheniyu-VPN-Vless-i-ShadowSocks-dlya-Android-11-14
+
+
+#СБОРКА ОСНОВАНА НА: https://github.com/bol-van/zapret-win-bundle
 В конце файла приведены все кредиты.
 
 ##############################################
@@ -502,4 +507,7 @@ GitHub Zapret Autorunner - https://github.com/Priler/bat_autorunner
 GitHub Zapret Preconfigs Tester - https://github.com/Priler/zapret_preconfigs_tester
 GitHub Zapret Domains Selector - https://github.com/Priler/zapret_domains_selector
 GitHub Zapret Discord - https://github.com/Flowseal/zapret-discord-youtube
+<<<<<<< HEAD:2. ПРОЧТИ_МЕНЯ.txt
 GitHub Discordfix Autoupdate - https://github.com/Priler/discordfix_autoupdate
+=======
+>>>>>>> 7688f31bfba72ce9b1b8d946cefeb8f5d844670a:README.MD
