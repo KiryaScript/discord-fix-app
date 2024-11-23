@@ -1,4 +1,9 @@
-СБОРКА ОСНОВАНА НА: https://github.com/bol-van/zapret-win-bundle
+##Нью гайд по Nekoray:
+https://telegra.ph/Polnoe-rukovodstvo-po-ispolzovaniyu-NekoRay-11-14
+https://telegra.ph/Instrukciya-po-podklyucheniyu-VPN-Vless-i-ShadowSocks-dlya-Android-11-14
+
+
+#СБОРКА ОСНОВАНА НА: https://github.com/bol-van/zapret-win-bundle
 В конце файла приведены все кредиты.
 
 ##############################################
