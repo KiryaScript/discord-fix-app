@@ -458,7 +458,7 @@ ipset или хост листом.
 
 Также эту проблему активно обсуждают в нашем телеграм чате.
 Залетайте - https://t.me/official_xochat
-Личная связь - https://t.me/Devorskiy
+Личная связь - https://t.me/devjijlk
 
 
 
