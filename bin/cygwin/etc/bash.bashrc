@@ -51,8 +51,8 @@ alias ll="ls -la"
 
 CYGROOT="$(cygpath -am /)"
 BUNDLE_ROOT="$(cygpath -am "$CYGROOT/..")"
-alias winws="\"$BUNDLE_ROOT/blockcheck/zapret/nfq/winws\""
-alias mdig="\"$BUNDLE_ROOT/blockcheck/zapret/mdig/mdig\""
-alias ip2net="\"$BUNDLE_ROOT/blockcheck/zapret/ip2net/ip2net\""
-alias blockcheck="\"$BUNDLE_ROOT/blockcheck/zapret/blockcheck.sh\""
+alias winws="'$BUNDLE_ROOT/blockcheck/zapret/nfq/winws'"
+alias mdig="'$BUNDLE_ROOT/blockcheck/zapret/mdig/mdig'"
+alias ip2net="'$BUNDLE_ROOT/blockcheck/zapret/ip2net/ip2net'"
+alias blockcheck="'$BUNDLE_ROOT/blockcheck/zapret/blockcheck.sh'"
 alias

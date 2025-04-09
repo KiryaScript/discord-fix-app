@@ -60,8 +60,23 @@ starts_with()
 	esac
 	return 1
 }
+extract_arg()
+{
+	# $1 - arg number
+	# $2,$3,... - args
+        local n=$1
+        while [ -n "$1" ]; do
+                shift
+                [ $n -eq 1 ] && { echo "$1"; return 0; }
+                n=$(($n-1))
+        done
+        return 1
+}
 find_str_in_list()
 {
+	# $1 - string
+	# $2 - space separated values
+	local v
 	[ -n "$1" ] && {
 		for v in $2; do
 			[ "$v" = "$1" ] && return 0
@@ -73,6 +88,19 @@ end_with_newline()
 {
 	local c="$(tail -c 1)"
 	[ "$c" = "" ]
+}
+trim()
+{
+	awk '{gsub(/^ +| +$/,"")}1'
+}
+
+dir_is_not_empty()
+{
+	# $1 - directory
+	local n
+	[ -d "$1" ] || return 1
+	n=$(ls "$1" | wc -c | xargs)
+	[ "$n" != 0 ]
 }
 
 append_separator_list()
@@ -213,7 +241,7 @@ fix_sbin_path()
 # it can calculate floating point expr
 calc()
 {
-	awk "BEGIN { print $*}";
+	LC_ALL=C awk "BEGIN { print $*}";
 }
 
 fsleep_setup()
@@ -275,6 +303,14 @@ replace_char()
 	echo "$@" | tr $a $b
 }
 
+replace_str()
+{
+	local a=$(echo "$1" | sed 's/\//\\\//g')
+	local b=$(echo "$2" | sed 's/\//\\\//g')
+	shift; shift
+	echo "$@" | sed "s/$a/$b/g"
+}
+
 setup_md5()
 {
 	[ -n "$MD5" ] && return
@@ -282,18 +318,27 @@ setup_md5()
 	exists $MD5 || MD5=md5
 }
 
+setup_random()
+{
+	[ -n "$RCUT" ] && return
+	RCUT="cut -c 1-17"
+	# some shells can operate with 32 bit signed int
+	[ $((0x100000000)) = 0 ] && RCUT="cut -c 1-9"
+}
+
 random()
 {
 	# $1 - min, $2 - max
 	local r rs
 	setup_md5
+	setup_random
 	if [ -c /dev/urandom ]; then
 		read rs </dev/urandom
 	else
 		rs="$RANDOM$RANDOM$(date)"
 	fi
 	# shells use signed int64
-	r=1$(echo $rs | $MD5 | sed 's/[^0-9]//g' | cut -c 1-17)
+	r=1$(echo $rs | $MD5 | sed 's/[^0-9]//g' | $RCUT)
 	echo $(( ($r % ($2-$1+1)) + $1 ))
 }
 
@@ -329,12 +374,62 @@ win_process_exists()
 	tasklist /NH /FI "IMAGENAME eq ${1}.exe" | grep -q "^${1}.exe"
 }
 
+alloc_num()
+{
+	# $1 - source var name
+	# $2 - target var name
+	# $3 - min
+	# $4 - max
+	
+	local v
+	eval v="\$$2"
+	# do not replace existing value
+	[ -n "$v" ] && return
+	eval v="\$$1"
+	[ -n "$v" ] || v=$3
+	eval $2="$v"
+	v=$((v + 1))
+	[ $v -gt $4 ] && v=$3
+	eval $1="$v"
+}
+
 std_ports()
 {
-        HTTP_PORTS=${HTTP_PORTS:-80}
-	HTTPS_PORTS=${HTTPS_PORTS:-443}
-	QUIC_PORTS=${QUIC_PORTS:-443}
-        HTTP_PORTS_IPT=$(replace_char - : $HTTP_PORTS)
-        HTTPS_PORTS_IPT=$(replace_char - : $HTTPS_PORTS)
-        QUIC_PORTS_IPT=$(replace_char - : $QUIC_PORTS)
+	TPWS_PORTS_IPT=$(replace_char - : $TPWS_PORTS)
+	NFQWS_PORTS_TCP_IPT=$(replace_char - : $NFQWS_PORTS_TCP)
+	NFQWS_PORTS_TCP_KEEPALIVE_IPT=$(replace_char - : $NFQWS_PORTS_TCP_KEEPALIVE)
+	NFQWS_PORTS_UDP_IPT=$(replace_char - : $NFQWS_PORTS_UDP)
+	NFQWS_PORTS_UDP_KEEPALIVE_IPT=$(replace_char - : $NFQWS_PORTS_UDP_KEEPALIVE)
+}
+
+has_bad_ws_options()
+{
+	# $1 - nfqws/tpws opts
+	# ПРИМЕЧАНИЕ ДЛЯ РАСПРОСТРАНИТЕЛЕЙ КОПИПАСТЫ
+	# ЭТОТ КОД СДЕЛАН СПЕЦИАЛЬНО ДЛЯ ВАС, ЧТОБЫ ВЫ НЕ ПОСТИЛИ В СЕТЬ ПЛОХИЕ РЕЦЕПТЫ
+	# ЕСЛИ ВАМ ХОЧЕТСЯ ЕГО УДАЛИТЬ И НАПИСАТЬ ИНСТРУКЦИЮ КАК ЕГО УДАЛЯТЬ, ВЫ ДЕЛАЕТЕ ХРЕНОВУЮ УСЛУГУ. НАПИШИТЕ ЛУЧШЕ custom script.
+	# custom script - ЭТО ФАЙЛИК, КОТОРЫЙ ДОСТАТОЧНО СКОПИРОВАТЬ В НУЖНУЮ ДИРЕКТОРИЮ, ЧТОБЫ ОН СДЕЛАЛ ТОЖЕ САМОЕ, НО ЭФФЕКТИВНО.
+	# ФИЛЬТРАЦИЯ ПО IPSET В ЯДРЕ НЕСРАВНИМО ЭФФЕКТИВНЕЕ, ЧЕМ ПЕРЕКИДЫВАТЬ ВСЕ ПАКЕТЫ В nfqws И ТАМ ФИЛЬТРОВАТЬ
+	# --ipset СУЩЕСТВУЕТ ТОЛЬКО ДЛЯ ВИНДЫ И LINUX СИСТЕМ БЕЗ ipset (НАПРИМЕР, Android).
+	# И ТОЛЬКО ПО ЭТОЙ ПРИЧИНЕ ОНО НЕ ВЫКИНУТО ПОЛНОСТЬЮ ИЗ LINUX ВЕРСИИ
+	contains "$1" "--ipset"
+}
+check_bad_ws_options()
+{
+	# $1 - 0 = stop, 1 = start
+	# $2 - nfqws/tpws options
+	if [ "$1" = 1 ] && has_bad_ws_options "$2"; then
+		echo "!!! REFUSING TO USE BAD OPTIONS : $2"
+		help_bad_ws_options
+		return 1
+	else
+		return 0
+	fi
+}
+help_bad_ws_options()
+{
+	echo "WARNING ! you have specified --ipset option"
+	echo "WARNING ! it would work but on ${UNAME:-$(uname)} it's not the best option"
+	echo "WARNING ! you should use kernel mode sets. they are much more efficient."
+	echo "WARNING ! to use ipsets you have to write your own custom script"
 }

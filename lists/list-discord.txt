@@ -44,3 +44,4 @@ media.discordapp.net
 watchanimeattheoffice.com
 www.discord.app
 www.discord.com
+stable.dl2.discordapp.net
