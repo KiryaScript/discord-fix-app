@@ -1,3 +1,5 @@
+![Обложка](https://github.com/KiryaScript/discord-fix-app/blob/main/assets/DiscordFIX.jpg)
+
 СБОРКА ОСНОВАНА НА: https://github.com/bol-van/zapret-win-bundle
 В конце файла приведены все кредиты.
 
