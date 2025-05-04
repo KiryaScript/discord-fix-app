@@ -35,4 +35,4 @@ jobs:
           git commit -m "Update blocked domains and IPs"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.AkumaCore }}  # Используйте ваш персональный токен
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Используйте ваш персональный токен
