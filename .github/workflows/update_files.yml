@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}  # Убедитесь, что используете правильный токен
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -35,4 +37,4 @@ jobs:
           git commit -m "Update blocked domains and IPs"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Используйте ваш персональный токен
+          GITHUB_TOKEN: ${{ secrets.AKUMACORE }}  # Используйте GITHUB_TOKEN из секретов
