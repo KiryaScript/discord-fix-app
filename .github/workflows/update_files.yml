@@ -2,8 +2,8 @@ name: Update Blocked Domains and IPs
 
 on:
   schedule:
-    - cron: "*/5 * * * *"  # Запускать каждый 5 минут
-  workflow_dispatch:  # Возможность запускать вручную
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
 
 jobs:
   update-blocked-files:
@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v2
