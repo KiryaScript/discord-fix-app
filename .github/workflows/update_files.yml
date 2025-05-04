@@ -2,8 +2,8 @@ name: Update Blocked Domains and IPs
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
-  workflow_dispatch:
+    - cron: "*/5 * * * *"  # Запускать каждый 5 минут
+  workflow_dispatch:  # Возможность запускать вручную
 
 jobs:
   update-blocked-files:
@@ -35,4 +35,4 @@ jobs:
           git commit -m "Update blocked domains and IPs"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.AkumaCore }}  # Используйте ваш персональный токен
