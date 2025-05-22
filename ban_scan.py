@@ -3,49 +3,39 @@ import requests
 from tqdm import tqdm
 
 API_BASE_URL = "https://reestr.rublacklist.net/api/v3"
+HEADERS = {"Content-Type": "application/json"}
 
-headers = {
-    "Content-Type": "application/json"
-}
-
-def get_blocked_domains():
-    url = f"{API_BASE_URL}/domains/"
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
+def get_blocked_list(endpoint: str) -> list:
+    """Получает данные с API и возвращает список"""
+    try:
+        response = requests.get(f"{API_BASE_URL}/{endpoint}/", headers=HEADERS, timeout=10)
+        response.raise_for_status()
         return response.json()
-    else:
-        print(f"Ошибка при получении доменов: {response.status_code}")
+    except requests.RequestException as e:
+        print(f"Ошибка при получении {endpoint}: {e}")
         return []
 
-def get_blocked_ips():
-    url = f"{API_BASE_URL}/ips/"
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Ошибка при получении IP-адресов: {response.status_code}")
-        return []
-
-def save_to_file(filename, data):
-    with open(filename, "w") as file:
+def save_to_file(filename: str, data: list):
+    """Сохраняет данные в файл построчно"""
+    with open(filename, "w", encoding="utf-8") as f:
         for item in tqdm(data, desc=f"Запись в {filename}", unit="item"):
-            file.write(f"{item}\n")
-    print(f"Данные успешно сохранены в файл: {filename}")
+            f.write(f"{item}\n")
+    print(f"✅ Сохранено: {filename}")
 
 def main():
-    print("Получение списка заблокированных доменов...")
-    blocked_domains = get_blocked_domains()
-    if blocked_domains:
-        save_to_file("blocked_domains.txt", blocked_domains)
+    print("📥 Получение заблокированных доменов...")
+    domains = get_blocked_list("domains")
+    if domains:
+        save_to_file("blocked_domains.txt", domains)
     else:
-        print("Не удалось получить домены.")
+        print("❌ Не удалось получить домены.")
 
-    print("\nПолучение списка заблокированных IP-адресов...")
-    blocked_ips = get_blocked_ips()
-    if blocked_ips:
-        save_to_file("blocked_ips.txt", blocked_ips)
+    print("\n📥 Получение заблокированных IP-адресов...")
+    ips = get_blocked_list("ips")
+    if ips:
+        save_to_file("blocked_ips.txt", ips)
     else:
-        print("Не удалось получить IP-адреса.")
+        print("❌ Не удалось получить IP-адреса.")
 
 if __name__ == "__main__":
     main()
