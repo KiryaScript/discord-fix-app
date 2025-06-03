@@ -5,7 +5,7 @@ chcp 65001 >nul
 cd /d "%~dp0..\"
 set BIN=%~dp0..\bin\
 
-set LIST_TITLE=ZAPRET: YouTube Fix TTK
+set LIST_TITLE=DiscordFix
 set LIST_PATH=%~dp0..\lists\list-youtube.txt
 
 start "%LIST_TITLE%" /min "%BIN%winws.exe" ^

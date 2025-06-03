@@ -1,4 +1,4 @@
-@echo off
+DiscordFix@echo off
 @echo off
 chcp 65001 >nul
 :: 65001 - UTF-8
@@ -6,7 +6,7 @@ chcp 65001 >nul
 cd /d "%~dp0..\"
 set BIN=%~dp0..\bin\
 
-set LIST_TITLE=ZAPRET: Ultimate Fix
+set LIST_TITLE=DiscordFix
 set LIST_PATH=%~dp0..\lists\list-ultimate.txt
 set DISCORD_IPSET_PATH=%~dp0..\lists\ipset-discord.txt
 set CLOUDFLARE_IPSET_PATH=%~dp0..\lists\ipset-cloudflare.txt
