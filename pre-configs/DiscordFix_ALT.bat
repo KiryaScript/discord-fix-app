@@ -1,11 +1,11 @@
-DiscordFix@echo off
+@echo off
 chcp 65001 >nul
 :: 65001 - UTF-8
 
 cd /d "%~dp0..\"
 set BIN=%~dp0..\bin\
 
-set LIST_TITLE=DiscordFix
+set LIST_TITLE=DiscordFix_ALT
 set LIST_PATH=%~dp0..\lists\list-discord.txt
 set DISCORD_IPSET_PATH=%~dp0..\lists\ipset-discord.txt
 

@@ -1,11 +1,11 @@
-DiscordFix@echo off
+@echo off
 chcp 65001 >nul
 :: 65001 - UTF-8
 
 cd /d "%~dp0..\"
 set BIN=%~dp0..\bin\
 
-set LIST_TITLE=DiscordFix
+set LIST_TITLE=YoutubeFix_ALT_для_МГТС
 set LIST_PATH=%~dp0..\lists\list-youtube.txt
 
 start "%LIST_TITLE%" /min "%BIN%winws.exe" ^

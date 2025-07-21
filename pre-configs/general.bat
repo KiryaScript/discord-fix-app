@@ -5,7 +5,7 @@ chcp 65001 >nul
 cd /d "%~dp0..\"
 set BIN=%~dp0..\bin\
 
-set LIST_TITLE=DiscordFix
+set LIST_TITLE=general
 set LIST_PATH=%~dp0..\lists\list-ultimate.txt
 set DISCORD_IPSET_PATH=%~dp0..\lists\ipset-discord.txt
 set CLOUDFLARE_IPSET_PATH=%~dp0..\lists\ipset-cloudflare.txt
