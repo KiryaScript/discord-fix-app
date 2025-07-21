@@ -1,0 +1,1 @@
+конвертер взят отсюда https://github.com/l-urk/Bat-To-Exe-Converter-64-Bit
