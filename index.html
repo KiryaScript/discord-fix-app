@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DiscordFix — by KiryaScript</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #0e0e11;
+      color: #f5f5f5;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 3em;
+      text-align: center;
+      background: linear-gradient(90deg, #00bfff, #a64bf4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #aaa;
+      margin-bottom: 30px;
+      font-size: 1.2em;
+    }
+
+    .download-btn {
+      display: block;
+      width: fit-content;
+      margin: 0 auto 40px;
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    }
+
+    .section {
+      background: #1c1c21;
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      color: #66ccff;
+      margin-bottom: 15px;
+    }
+
+    .section p {
+      color: #ccc;
+      line-height: 1.5em;
+    }
+
+    canvas {
+      max-width: 100%;
+      background: #121214;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+
+    th {
+      background: #2c2c30;
+      color: #66ccff;
+    }
+
+    tr:hover {
+      background: #2a2a2f;
+    }
+
+    footer {
+      text-align: center;
+      color: #777;
+      font-size: 0.9em;
+      margin-top: 40px;
+    }
+
+    footer a {
+      color: #aaa;
+      text-decoration: underline;
+    }
+
+    footer a:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>DiscordFix</h1>
+    <p class="subtitle">Исправь Discord в одно касание</p>
+
+    <a class="download-btn" href="https://github.com/KiryaScript/discord-fix-app/releases/download/v7.1.1/DiscordFix.7z">
+      ⬇️ Скачать DiscordFix v7.1.1
+    </a>
+
+    <div class="section">
+      <h2>🔧 Что это?</h2>
+      <p>
+        DiscordFix — мини-инструмент для устранения проблем с запуском, багов и блокировок Discord. 
+        Лёгкий, безопасный и обновляется через GitHub. Работает из коробки — скачал, запустил, забыл.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>📊 Статистика</h2>
+      <canvas id="statsChart" height="200"></canvas>
+
+      <h3>🔗 Referring Sites</h3>
+      <table id="refTable">
+        <tr><th>Сайт</th><th>Просмотры</th><th>Уникальные</th></tr>
+      </table>
+
+      <h3 style="margin-top:30px;">📂 Популярный контент</h3>
+      <table id="pathTable">
+        <tr><th>Ссылка</th><th>Просмотры</th><th>Уникальные</th></tr>
+      </table>
+    </div>
+
+    <footer>
+      <p>Сделано с ❤️ by <a href="https://github.com/KiryaScript" target="_blank">KiryaScript</a></p>
+      <p><a href="https://github.com/KiryaScript/discord-fix-app" target="_blank">Открыть исходники на GitHub</a></p>
+    </footer>
+  </div>
+
+  <script>
+    fetch("https://kiryascript.github.io/discordfix-site/stats.json")
+      .then(res => res.json())
+      .then(data => {
+        // График
+        const labels = data.views.daily.map(d => d.timestamp.slice(5));
+        const views = data.views.daily.map(d => d.count);
+        const uniques = data.views.daily.map(d => d.uniques);
+
+        new Chart(document.getElementById("statsChart"), {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Просмотры",
+                data: views,
+                borderColor: "#00bfff",
+                backgroundColor: "transparent",
+                tension: 0.3
+              },
+              {
+                label: "Уникальные",
+                data: uniques,
+                borderColor: "#66ff66",
+                backgroundColor: "transparent",
+                tension: 0.3
+              }
+            ]
+          },
+          options: {
+            plugins: { legend: { labels: { color: "#fff" } } },
+            scales: {
+              x: { ticks: { color: "#aaa" } },
+              y: { ticks: { color: "#aaa" } }
+            }
+          }
+        });
+
+        // Referring Sites
+        const refTable = document.getElementById("refTable");
+        data.referrers.forEach(r => {
+          const row = `<tr><td>${r.referrer}</td><td>${r.count}</td><td>${r.uniques}</td></tr>`;
+          refTable.insertAdjacentHTML("beforeend", row);
+        });
+
+        // Popular Content
+        const pathTable = document.getElementById("pathTable");
+        data.paths.forEach(p => {
+          const row = `<tr><td>${p.path}</td><td>${p.count}</td><td>${p.uniques}</td></tr>`;
+          pathTable.insertAdjacentHTML("beforeend", row);
+        });
+      })
+      .catch(err => {
+        console.error("Ошибка загрузки статистики:", err);
+      });
+  </script>
+</body>
+</html>
