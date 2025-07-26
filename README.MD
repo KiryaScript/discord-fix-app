@@ -239,7 +239,7 @@ sc delete windivert14
 
 * Если не помогает, то удалите всю папку с фиксом.
   Перезагрузите компьютер.
-  Потом перекачайте по новой с сайта - https://howdyho.net/windows-software/discord-fix-snova-rabotayushij-diskord-vojs-zvonki?download
+  Потом перекачайте по новой - https://github.com/KiryaScript/discord-fix-app/releases/tag/v7.1.1
   Распакуйте фикс и запускайте.
 
 
