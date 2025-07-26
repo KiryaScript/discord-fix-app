@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import json
 from datetime import datetime
+from collections import OrderedDict
 
 # Настройки
 REPO_URL = "https://github.com/KiryaScript/discord-fix-app/graphs/traffic"
@@ -17,6 +18,7 @@ def setup_driver():
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-notifications")  # Против DEPRECATED_ENDPOINT
     driver = webdriver.Chrome(options=chrome_options)
     driver.maximize_window()
     return driver
@@ -40,7 +42,7 @@ def scrape_traffic_data(driver):
     # Ждём загрузки страницы
     try:
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, "viz")))
-        time.sleep(2)  # Даём JavaScript прогрузиться
+        time.sleep(3)  # Даём JavaScript больше времени
     except:
         print("SVG-график не прогрузился, пиздец!")
         raise
@@ -55,24 +57,29 @@ def scrape_traffic_data(driver):
         
         dates = [tick.text for tick in x_axis_ticks]
         if len(total_dots) != len(unique_dots) or len(total_dots) != len(dates):
-            print("Данные по датам/точкам не совпадают, пиздец!")
+            print(f"Несовпадение данных: {len(total_dots)} точек, {len(unique_dots)} уникальных, {len(dates)} дат, пиздец!")
             return None
 
+        # Убираем дубликаты, сохраняя последние значения
+        daily_data = OrderedDict()
         for i, (total_dot, unique_dot) in enumerate(zip(total_dots, unique_dots)):
+            date = dates[i]  # Формат MM/DD
             total_y = float(total_dot.get_attribute("cy"))
             unique_y = float(unique_dot.get_attribute("cy"))
             
-            # Предполагаем, что ось Y для просмотров: 0 внизу (y=193.5), 30 вверху (y=12.5625)
+            # Ось Y: просмотры (0 внизу y=193.5, 30 вверху y=12.5625)
             total_count = round((193.5 - total_y) / (193.5 - 12.5625) * 30)
-            # Для уникальных: 0 внизу (y=193.5), 15 вверху (y=23.20588235294118)
+            # Уникальные (0 внизу y=193.5, 15 вверху y=23.20588235294118)
             unique_count = round((193.5 - unique_y) / (193.5 - 23.20588235294118) * 15)
             
-            views_data.append({
-                "timestamp": f"2025-{dates[i]}",  # Формат как в твоём сайте
+            daily_data[date] = {
+                "timestamp": date.replace("/", "-"),  # MM-DD
                 "count": total_count,
                 "uniques": unique_count
-            })
-        print(f"Нашёл {len(views_data)} дней в графике.")
+            }
+        
+        views_data = list(daily_data.values())
+        print(f"Нашёл {len(views_data)} уникальных дней в графике.")
     except Exception as e:
         print(f"Ошибка при парсинге графика: {e}")
         views_data = []
@@ -81,51 +88,70 @@ def scrape_traffic_data(driver):
     referrers = []
     try:
         print("Ищу рефереры...")
-        referrer_elements = driver.find_elements(By.CSS_SELECTOR, "table.referrer-table tbody tr")
-        for ref in referrer_elements:
-            cols = ref.find_elements(By.TAG_NAME, "td")
-            if len(cols) >= 3:
-                referrers.append({
-                    "referrer": cols[0].text,
-                    "count": int(cols[1].text.replace(",", "")),
-                    "uniques": int(cols[2].text.replace(",", ""))
-                })
+        # Пробуем более общий селектор, если table.referrer-table не работает
+        referrer_tables = driver.find_elements(By.CSS_SELECTOR, "table")
+        for table in referrer_tables:
+            try:
+                headers = table.find_elements(By.CSS_SELECTOR, "thead th")
+                if any("Referrer" in header.text for header in headers):
+                    rows = table.find_elements(By.CSS_SELECTOR, "tbody tr")
+                    for row in rows:
+                        cols = row.find_elements(By.TAG_NAME, "td")
+                        if len(cols) >= 3:
+                            referrers.append({
+                                "referrer": cols[0].text.strip(),
+                                "count": int(cols[1].text.replace(",", "")),
+                                "uniques": int(cols[2].text.replace(",", ""))
+                            })
+                    break
+            except:
+                continue
         print(f"Нашёл {len(referrers)} рефереров.")
-    except:
-        print("Не нашёл рефереров, пиздец.")
+    except Exception as e:
+        print(f"Не нашёл рефереров: {e}")
 
     # Популярные пути
     paths = []
     try:
         print("Ищу популярные пути...")
-        path_elements = driver.find_elements(By.CSS_SELECTOR, "table.popular-content-table tbody tr")
-        for path in path_elements:
-            cols = path.find_elements(By.TAG_NAME, "td")
-            if len(cols) >= 3:
-                paths.append({
-                    "path": cols[0].text,
-                    "count": int(cols[1].text.replace(",", "")),
-                    "uniques": int(cols[2].text.replace(",", ""))
-                })
+        # Пробуем более общий селектор
+        path_tables = driver.find_elements(By.CSS_SELECTOR, "table")
+        for table in path_tables:
+            try:
+                headers = table.find_elements(By.CSS_SELECTOR, "thead th")
+                if any("Path" in header.text for header in headers):
+                    rows = table.find_elements(By.CSS_SELECTOR, "tbody tr")
+                    for row in rows:
+                        cols = row.find_elements(By.TAG_NAME, "td")
+                        if len(cols) >= 3:
+                            paths.append({
+                                "path": cols[0].text.strip(),
+                                "count": int(cols[1].text.replace(",", "")),
+                                "uniques": int(cols[2].text.replace(",", ""))
+                            })
+                    break
+            except:
+                continue
         print(f"Нашёл {len(paths)} путей.")
-    except:
-        print("Не нашёл популярных путей, пиздец.")
+    except Exception as e:
+        print(f"Не нашёл популярных путей: {e}")
 
     # Формируем JSON
+    total_views = sum(d["count"] for d in views_data) if views_data else 0
+    total_uniques = sum(d["uniques"] for d in views_data) if views_data else 0
     traffic_data = {
         "views": {
-            "total": sum(d["count"] for d in views_data) if views_data else 0,
-            "uniques": sum(d["uniques"] for d in views_data) if views_data else 0,
+            "total": total_views,
+            "uniques": total_uniques,
             "daily": views_data
         },
         "referrers": referrers,
-        "paths": paths,
-        "last_updated": datetime.utcnow().isoformat()
+        "paths": paths
     }
     
     return traffic_data
 
-def save_to_json(data, filename="traffic_stats.json"):
+def save_to_json(data, filename="stats.json"):
     """Сохраняем в JSON."""
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)

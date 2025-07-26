@@ -114,6 +114,29 @@
     footer a:hover {
       color: #fff;
     }
+    
+    /* Стили для состояний */
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #aaa;
+    }
+    .error {
+      color: #ff6666;
+      text-align: center;
+      padding: 20px;
+    }
+    .empty {
+      color: #aaa;
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    /* Общие стили для скрытия/показа */
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -135,15 +158,27 @@
 
     <div class="section">
       <h2>📊 Статистика</h2>
-      <canvas id="statsChart" height="200"></canvas>
+      <div id="totalStats" class="hidden">
+        <p>Всего просмотров: <span id="totalViews">0</span></p>
+        <p>Уникальных посетителей: <span id="totalUniques">0</span></p>
+        <p>Последнее обновление: <span id="lastUpdated">неизвестно</span></p>
+      </div>
+      
+      <div id="loadingStats" class="loading">Загрузка статистики...</div>
+      <div id="errorStats" class="error hidden">⚠️ Не удалось загрузить статистику</div>
+      <canvas id="statsChart" height="200" class="hidden"></canvas>
 
       <h3>🔗 Referring Sites</h3>
-      <table id="refTable">
+      <div id="loadingRefs" class="loading">Загрузка данных...</div>
+      <div id="emptyRefs" class="empty hidden">Нет данных о реферерах</div>
+      <table id="refTable" class="hidden">
         <tr><th>Сайт</th><th>Просмотры</th><th>Уникальные</th></tr>
       </table>
 
       <h3 style="margin-top:30px;">📂 Популярный контент</h3>
-      <table id="pathTable">
+      <div id="loadingPaths" class="loading">Загрузка данных...</div>
+      <div id="emptyPaths" class="empty hidden">Нет данных о популярном контенте</div>
+      <table id="pathTable" class="hidden">
         <tr><th>Ссылка</th><th>Просмотры</th><th>Уникальные</th></tr>
       </table>
     </div>
@@ -155,60 +190,189 @@
   </div>
 
   <script>
-    fetch("https://kiryascript.github.io/discordfix-site/stats.json")
-      .then(res => res.json())
-      .then(data => {
-        // График
-        const labels = data.views.daily.map(d => d.timestamp.slice(5));
-        const views = data.views.daily.map(d => d.count);
-        const uniques = data.views.daily.map(d => d.uniques);
-
-        new Chart(document.getElementById("statsChart"), {
-          type: "line",
-          data: {
-            labels,
-            datasets: [
-              {
-                label: "Просмотры",
-                data: views,
-                borderColor: "#00bfff",
-                backgroundColor: "transparent",
-                tension: 0.3
-              },
-              {
-                label: "Уникальные",
-                data: uniques,
-                borderColor: "#66ff66",
-                backgroundColor: "transparent",
-                tension: 0.3
-              }
-            ]
-          },
-          options: {
-            plugins: { legend: { labels: { color: "#fff" } } },
-            scales: {
-              x: { ticks: { color: "#aaa" } },
-              y: { ticks: { color: "#aaa" } }
-            }
-          }
+    // Функция для форматирования даты
+    function formatDate(dateString) {
+      if (!dateString) return 'неизвестно';
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleString('ru-RU', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
         });
+      } catch (e) {
+        return dateString;
+      }
+    }
+
+    // Функция для форматирования дат в графике
+    function formatChartDate(dateString) {
+      // Обрабатываем формат 2025-07/13 или 07-13
+      const parts = dateString.replace(/\//g, '-').split('-');
+      let month, day;
+      if (parts.length === 3) {
+        // Формат 2025-07-13
+        month = parseInt(parts[1], 10);
+        day = parseInt(parts[2], 10);
+      } else if (parts.length === 2) {
+        // Формат 07-13
+        month = parseInt(parts[0], 10);
+        day = parseInt(parts[1], 10);
+      } else {
+        return dateString;
+      }
+      return `${day} июля`;
+    }
+
+    // Удаление дубликатов дат
+    function dedupeDailyData(daily) {
+      const seen = new Map();
+      daily.forEach(item => {
+        const date = item.timestamp.replace(/\//g, '-'); // Нормализуем формат
+        seen.set(date, {
+          timestamp: date,
+          count: item.count || 0,
+          uniques: item.uniques || 0
+        });
+      });
+      return Array.from(seen.values()).sort((a, b) => {
+        const [aMonth, aDay] = a.timestamp.split('-').map(Number);
+        const [bMonth, bDay] = b.timestamp.split('-').map(Number);
+        return (aMonth * 100 + aDay) - (bMonth * 100 + bDay);
+      });
+    }
+
+    // Загружаем данные из stats.json
+    fetch("./stats.json") // Из корня сайта
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Ошибка HTTP: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('Получены данные:', data);
+        
+        // Общая статистика
+        document.getElementById('totalViews').textContent = data.views?.total || 0;
+        document.getElementById('totalUniques').textContent = data.views?.uniques || 0;
+        document.getElementById('lastUpdated').textContent = formatDate(data.last_updated || new Date());
+        document.getElementById('totalStats').classList.remove('hidden');
+        
+        // Скрываем индикатор загрузки
+        document.getElementById('loadingStats').classList.add('hidden');
+
+        // График
+        if (data.views?.daily?.length > 0) {
+          const dedupedDaily = dedupeDailyData(data.views.daily);
+          const labels = dedupedDaily.map(d => formatChartDate(d.timestamp));
+          const views = dedupedDaily.map(d => d.count || 0);
+          const uniques = dedupedDaily.map(d => d.uniques || 0);
+
+          new Chart(document.getElementById("statsChart"), {
+            type: "line",
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: "Просмотры",
+                  data: views,
+                  borderColor: "#00bfff",
+                  backgroundColor: "transparent",
+                  tension: 0.3
+                },
+                {
+                  label: "Уникальные",
+                  data: uniques,
+                  borderColor: "#66ff66",
+                  backgroundColor: "transparent",
+                  tension: 0.3
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              plugins: { 
+                legend: { 
+                  labels: { 
+                    color: "#fff",
+                    font: {
+                      family: "'Inter', sans-serif"
+                    }
+                  } 
+                } 
+              },
+              scales: {
+                x: { 
+                  ticks: { 
+                    color: "#aaa",
+                    font: {
+                      family: "'Inter', sans-serif"
+                    }
+                  } 
+                },
+                y: { 
+                  ticks: { 
+                    color: "#aaa",
+                    font: {
+                      family: "'Inter', sans-serif"
+                    }
+                  },
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+          document.getElementById('statsChart').classList.remove('hidden');
+        } else {
+          document.getElementById('errorStats').textContent = '⚠️ Нет данных для графика';
+          document.getElementById('errorStats').classList.remove('hidden');
+        }
 
         // Referring Sites
-        const refTable = document.getElementById("refTable");
-        data.referrers.forEach(r => {
-          const row = `<tr><td>${r.referrer}</td><td>${r.count}</td><td>${r.uniques}</td></tr>`;
-          refTable.insertAdjacentHTML("beforeend", row);
-        });
+        document.getElementById('loadingRefs').classList.add('hidden');
+        if (data.referrers?.length > 0) {
+          const refTable = document.getElementById("refTable");
+          data.referrers
+            .sort((a, b) => (b.count || 0) - (a.count || 0))
+            .forEach(r => {
+              const referrer = r.referrer || 'Прямые переходы';
+              const row = `<tr><td>${referrer}</td><td>${r.count || 0}</td><td>${r.uniques || 0}</td></tr>`;
+              refTable.insertAdjacentHTML("beforeend", row);
+            });
+          document.getElementById('refTable').classList.remove('hidden');
+        } else {
+          document.getElementById('emptyRefs').classList.remove('hidden');
+        }
 
         // Popular Content
-        const pathTable = document.getElementById("pathTable");
-        data.paths.forEach(p => {
-          const row = `<tr><td>${p.path}</td><td>${p.count}</td><td>${p.uniques}</td></tr>`;
-          pathTable.insertAdjacentHTML("beforeend", row);
-        });
+        document.getElementById('loadingPaths').classList.add('hidden');
+        if (data.paths?.length > 0) {
+          const pathTable = document.getElementById("pathTable");
+          data.paths
+            .sort((a, b) => (b.count || 0) - (a.count || 0))
+            .forEach(p => {
+              const path = p.path || 'Неизвестно';
+              const row = `<tr><td>${path}</td><td>${p.count || 0}</td><td>${p.uniques || 0}</td></tr>`;
+              pathTable.insertAdjacentHTML("beforeend", row);
+            });
+          document.getElementById('pathTable').classList.remove('hidden');
+        } else {
+          document.getElementById('emptyPaths').classList.remove('hidden');
+        }
       })
       .catch(err => {
         console.error("Ошибка загрузки статистики:", err);
+        document.getElementById('loadingStats').classList.add('hidden');
+        document.getElementById('errorStats').classList.remove('hidden');
+        
+        document.getElementById('loadingRefs').classList.add('hidden');
+        document.getElementById('emptyRefs').classList.remove('hidden');
+        
+        document.getElementById('loadingPaths').classList.add('hidden');
+        document.getElementById('emptyPaths').classList.remove('hidden');
       });
   </script>
 </body>
