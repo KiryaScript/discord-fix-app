@@ -1,5 +1,7 @@
 ![Обложка](https://github.com/KiryaScript/discord-fix-app/blob/main/assets/DiscordFIX.jpg)
 
+[Инструкция для нормисов](https://github.com/KiryaScript/discord-fix-app/blob/main/README.MD) | [Для тупых](https://github.com/KiryaScript/discord-fix-app/blob/main/READMEAUT.md)
+
 ←←←←←←←←←←←←←←←←←←←←←←←←← Скачивать ТОЛЬКО С [РЕЛИЗОВ](https://github.com/KiryaScript/discord-fix-app/releases) →→→→→→→→→→→→→→→→→→→→→→→→→→→→
 
 СБОРКА ОСНОВАНА НА: https://github.com/bol-van/zapret-win-bundle
