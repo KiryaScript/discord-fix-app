@@ -1,48 +1,51 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DiscordFix</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
+<body class="bg-gray-900 text-white font-sans">
   <div class="container mx-auto p-6 max-w-4xl">
-    <h1 class="text-4xl font-bold text-center mb-4">DiscordFix</h1>
-    <p class="text-xl text-center mb-8">Исправь Discord в одно касание</p>
+    <h1 class="text-4xl font-bold text-center mb-4 text-indigo-400">DiscordFix</h1>
+    <p class="text-xl text-center mb-8 text-gray-300">Исправь Discord в одно касание</p>
 
     <div class="text-center mb-8">
-      <a href="https://github.com/KiryaScript/discord-fix-app/releases/tag/v7.1.1" class="inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+      <a href="https://github.com/KiryaScript/discord-fix-app/releases/tag/v7.1.1"
+         class="inline-block bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition">
         ⬇️ Скачать DiscordFix v7.1.1
       </a>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-      <h2 class="text-2xl font-semibold mb-4">🔧 Что это?</h2>
-      <p>
-        DiscordFix — мини-инструмент для устранения проблем с запуском, багов и блокировок Discord. 
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-indigo-300">🔧 Что это?</h2>
+      <p class="text-gray-300">
+        DiscordFix — мини-инструмент для устранения проблем с запуском, багов и блокировок Discord.
         Лёгкий, безопасный и обновляется через GitHub. Работает из коробки — скачал, запустил, забыл.
       </p>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-      <h2 class="text-2xl font-semibold mb-4">📊 Статистика</h2>
-      <div id="stats-loading" class="text-center">Загрузка статистики...</div>
-      <div id="stats-error" class="hidden text-center text-red-600">⚠️ Не удалось загрузить статистику</div>
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-indigo-300">📊 Статистика</h2>
+      <div id="stats-loading" class="text-center text-gray-400">Загрузка статистики...</div>
+      <div id="stats-error" class="hidden text-center text-red-400">⚠️ Не удалось загрузить статистику</div>
       <div id="stats-content" class="hidden">
         <p>Всего просмотров: <span id="total-views">0</span></p>
         <p>Уникальных посетителей: <span id="unique-visitors">0</span></p>
         <p>Последнее обновление: <span id="last-update">неизвестно</span></p>
+        <canvas id="traffic-chart" height="120" class="mt-6 bg-white rounded"></canvas>
       </div>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-      <h2 class="text-2xl font-semibold mb-4">🔗 Referring Sites</h2>
-      <div id="referrers-loading" class="text-center">Загрузка данных...</div>
-      <div id="referrers-error" class="hidden text-center text-red-600">Нет данных о реферерах</div>
-      <table id="referrers-table" class="hidden w-full text-left border-collapse">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-indigo-300">🔗 Referring Sites</h2>
+      <div id="referrers-loading" class="text-center text-gray-400">Загрузка данных...</div>
+      <div id="referrers-error" class="hidden text-center text-red-400">Нет данных о реферерах</div>
+      <table id="referrers-table" class="hidden w-full text-left border-collapse mt-4">
         <thead>
-          <tr class="bg-gray-200">
+          <tr class="bg-gray-700 text-white">
             <th class="p-2">Сайт</th>
             <th class="p-2 text-center">Просмотры</th>
             <th class="p-2 text-center">Уникальные</th>
@@ -52,13 +55,13 @@
       </table>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-      <h2 class="text-2xl font-semibold mb-4">📂 Популярный контент</h2>
-      <div id="paths-loading" class="text-center">Загрузка данных...</div>
-      <div id="paths-error" class="hidden text-center text-red-600">Нет данных о популярном контенте</div>
-      <table id="paths-table" class="hidden w-full text-left border-collapse">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-indigo-300">📂 Популярный контент</h2>
+      <div id="paths-loading" class="text-center text-gray-400">Загрузка данных...</div>
+      <div id="paths-error" class="hidden text-center text-red-400">Нет данных о популярном контенте</div>
+      <table id="paths-table" class="hidden w-full text-left border-collapse mt-4">
         <thead>
-          <tr class="bg-gray-200">
+          <tr class="bg-gray-700 text-white">
             <th class="p-2">Ссылка</th>
             <th class="p-2 text-center">Просмотры</th>
             <th class="p-2 text-center">Уникальные</th>
@@ -68,9 +71,9 @@
       </table>
     </div>
 
-    <div class="text-center">
-      <p class="mb-4">Сделано с ❤️ by KiryaScript</p>
-      <a href="https://github.com/KiryaScript/discord-fix-app" class="text-blue-600 hover:underline">Открыть исходники на GitHub</a>
+    <div class="text-center text-gray-500">
+      <p class="mb-2">Сделано с ❤️ by KiryaScript</p>
+      <a href="https://github.com/KiryaScript/discord-fix-app" class="text-indigo-400 hover:underline">Открыть исходники на GitHub</a>
     </div>
   </div>
 
@@ -78,57 +81,108 @@
     async function loadStats() {
       try {
         const response = await fetch('stats.json');
-        if (!response.ok) throw new Error('Failed to load stats.json');
+        if (!response.ok) throw new Error('Не удалось загрузить stats.json');
         const data = await response.json();
 
-        // Обновляем статистику
         document.getElementById('stats-loading').classList.add('hidden');
         document.getElementById('stats-content').classList.remove('hidden');
         document.getElementById('total-views').textContent = data.views.total || 0;
         document.getElementById('unique-visitors').textContent = data.views.uniques || 0;
         document.getElementById('last-update').textContent = new Date().toLocaleDateString('ru-RU');
 
-        // Обновляем рефереры
+        // 📈 График
+        if (data.views && data.views.daily.length > 0) {
+          const labels = data.views.daily.map(entry => entry.timestamp);
+          const views = data.views.daily.map(entry => entry.count);
+          const uniques = data.views.daily.map(entry => entry.uniques);
+
+          const ctx = document.getElementById('traffic-chart').getContext('2d');
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: 'Просмотры',
+                  data: views,
+                  borderColor: '#6366F1',
+                  backgroundColor: 'rgba(99,102,241,0.2)',
+                  tension: 0.4,
+                  fill: true
+                },
+                {
+                  label: 'Уникальные',
+                  data: uniques,
+                  borderColor: '#10B981',
+                  backgroundColor: 'rgba(16,185,129,0.2)',
+                  tension: 0.4,
+                  fill: true
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: { stepSize: 1 }
+                }
+              },
+              plugins: {
+                legend: {
+                  labels: {
+                    color: '#E5E7EB'
+                  }
+                }
+              }
+            }
+          });
+        }
+
+        // 🌐 Referrers
         const referrersBody = document.getElementById('referrers-body');
-        referrersBody.innerHTML = '';
-        if (data.referrers && data.referrers.length > 0) {
+        if (data.referrers?.length) {
           document.getElementById('referrers-loading').classList.add('hidden');
           document.getElementById('referrers-table').classList.remove('hidden');
+          referrersBody.innerHTML = '';
           data.referrers.forEach(ref => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td class="p-2">${ref.referrer}</td>
-              <td class="p-2 text-center">${ref.count}</td>
-              <td class="p-2 text-center">${ref.uniques}</td>
-            `;
-            referrersBody.appendChild(row);
+            referrersBody.innerHTML += `
+              <tr class="hover:bg-gray-700">
+                <td class="p-2">${ref.referrer}</td>
+                <td class="p-2 text-center">${ref.count}</td>
+                <td class="p-2 text-center">${ref.uniques}</td>
+              </tr>`;
           });
         } else {
           document.getElementById('referrers-loading').classList.add('hidden');
           document.getElementById('referrers-error').classList.remove('hidden');
         }
 
-        // Обновляем популярный контент
+        // 📂 Paths
         const pathsBody = document.getElementById('paths-body');
-        pathsBody.innerHTML = '';
-        if (data.paths && data.paths.length > 0) {
+        if (data.paths?.length) {
           document.getElementById('paths-loading').classList.add('hidden');
           document.getElementById('paths-table').classList.remove('hidden');
+          pathsBody.innerHTML = '';
           data.paths.forEach(path => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td class="p-2">${path.path}</td>
-              <td class="p-2 text-center">${path.count}</td>
-              <td class="p-2 text-center">${path.uniques}</td>
-            `;
-            pathsBody.appendChild(row);
+            pathsBody.innerHTML += `
+              <tr class="hover:bg-gray-700">
+                <td class="p-2">${path.path}</td>
+                <td class="p-2 text-center">${path.count}</td>
+                <td class="p-2 text-center">${path.uniques}</td>
+              </tr>`;
           });
         } else {
           document.getElementById('paths-loading').classList.add('hidden');
           document.getElementById('paths-error').classList.remove('hidden');
         }
+
       } catch (error) {
-        console.error('Ошибка загрузки статистики:', error);
+        console.error('Ошибка:', error);
         document.getElementById('stats-loading').classList.add('hidden');
         document.getElementById('stats-error').classList.remove('hidden');
         document.getElementById('referrers-loading').classList.add('hidden');
@@ -138,7 +192,6 @@
       }
     }
 
-    // Загружаем статистику при загрузке страницы
     window.onload = loadStats;
   </script>
 </body>
