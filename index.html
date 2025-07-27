@@ -2,378 +2,144 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DiscordFix — by KiryaScript</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: #0e0e11;
-      color: #f5f5f5;
-      padding: 30px;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: auto;
-    }
-
-    h1 {
-      font-size: 3em;
-      text-align: center;
-      background: linear-gradient(90deg, #00bfff, #a64bf4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #aaa;
-      margin-bottom: 30px;
-      font-size: 1.2em;
-    }
-
-    .download-btn {
-      display: block;
-      width: fit-content;
-      margin: 0 auto 40px;
-      padding: 15px 30px;
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      color: #fff;
-      text-decoration: none;
-      border-radius: 10px;
-      font-weight: bold;
-      transition: transform 0.2s ease, box-shadow 0.3s ease;
-    }
-
-    .download-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-    }
-
-    .section {
-      background: #1c1c21;
-      padding: 25px;
-      border-radius: 12px;
-      margin-bottom: 30px;
-    }
-
-    .section h2 {
-      color: #66ccff;
-      margin-bottom: 15px;
-    }
-
-    .section p {
-      color: #ccc;
-      line-height: 1.5em;
-    }
-
-    canvas {
-      max-width: 100%;
-      background: #121214;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #333;
-    }
-
-    th {
-      background: #2c2c30;
-      color: #66ccff;
-    }
-
-    tr:hover {
-      background: #2a2a2f;
-    }
-
-    footer {
-      text-align: center;
-      color: #777;
-      font-size: 0.9em;
-      margin-top: 40px;
-    }
-
-    footer a {
-      color: #aaa;
-      text-decoration: underline;
-    }
-
-    footer a:hover {
-      color: #fff;
-    }
-    
-    /* Стили для состояний */
-    .loading {
-      text-align: center;
-      padding: 20px;
-      color: #aaa;
-    }
-    .error {
-      color: #ff6666;
-      text-align: center;
-      padding: 20px;
-    }
-    .empty {
-      color: #aaa;
-      font-style: italic;
-      text-align: center;
-      padding: 20px;
-    }
-    
-    /* Общие стили для скрытия/показа */
-    .hidden {
-      display: none;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiscordFix</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <div class="container">
-    <h1>DiscordFix</h1>
-    <p class="subtitle">Исправь Discord в одно касание</p>
+<body class="bg-gray-100 font-sans text-gray-800">
+  <div class="container mx-auto p-6 max-w-4xl">
+    <h1 class="text-4xl font-bold text-center mb-4">DiscordFix</h1>
+    <p class="text-xl text-center mb-8">Исправь Discord в одно касание</p>
 
-    <a class="download-btn" href="https://github.com/KiryaScript/discord-fix-app/releases/download/v7.1.1/DiscordFix.7z">
-      ⬇️ Скачать DiscordFix v7.1.1
-    </a>
+    <div class="text-center mb-8">
+      <a href="https://github.com/KiryaScript/discord-fix-app/releases/tag/v7.1.1" class="inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+        ⬇️ Скачать DiscordFix v7.1.1
+      </a>
+    </div>
 
-    <div class="section">
-      <h2>🔧 Что это?</h2>
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-semibold mb-4">🔧 Что это?</h2>
       <p>
         DiscordFix — мини-инструмент для устранения проблем с запуском, багов и блокировок Discord. 
         Лёгкий, безопасный и обновляется через GitHub. Работает из коробки — скачал, запустил, забыл.
       </p>
     </div>
 
-    <div class="section">
-      <h2>📊 Статистика</h2>
-      <div id="totalStats" class="hidden">
-        <p>Всего просмотров: <span id="totalViews">0</span></p>
-        <p>Уникальных посетителей: <span id="totalUniques">0</span></p>
-        <p>Последнее обновление: <span id="lastUpdated">неизвестно</span></p>
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-semibold mb-4">📊 Статистика</h2>
+      <div id="stats-loading" class="text-center">Загрузка статистики...</div>
+      <div id="stats-error" class="hidden text-center text-red-600">⚠️ Не удалось загрузить статистику</div>
+      <div id="stats-content" class="hidden">
+        <p>Всего просмотров: <span id="total-views">0</span></p>
+        <p>Уникальных посетителей: <span id="unique-visitors">0</span></p>
+        <p>Последнее обновление: <span id="last-update">неизвестно</span></p>
       </div>
-      
-      <div id="loadingStats" class="loading">Загрузка статистики...</div>
-      <div id="errorStats" class="error hidden">⚠️ Не удалось загрузить статистику</div>
-      <canvas id="statsChart" height="200" class="hidden"></canvas>
+    </div>
 
-      <h3>🔗 Referring Sites</h3>
-      <div id="loadingRefs" class="loading">Загрузка данных...</div>
-      <div id="emptyRefs" class="empty hidden">Нет данных о реферерах</div>
-      <table id="refTable" class="hidden">
-        <tr><th>Сайт</th><th>Просмотры</th><th>Уникальные</th></tr>
-      </table>
-
-      <h3 style="margin-top:30px;">📂 Популярный контент</h3>
-      <div id="loadingPaths" class="loading">Загрузка данных...</div>
-      <div id="emptyPaths" class="empty hidden">Нет данных о популярном контенте</div>
-      <table id="pathTable" class="hidden">
-        <tr><th>Ссылка</th><th>Просмотры</th><th>Уникальные</th></tr>
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-semibold mb-4">🔗 Referring Sites</h2>
+      <div id="referrers-loading" class="text-center">Загрузка данных...</div>
+      <div id="referrers-error" class="hidden text-center text-red-600">Нет данных о реферерах</div>
+      <table id="referrers-table" class="hidden w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="p-2">Сайт</th>
+            <th class="p-2 text-center">Просмотры</th>
+            <th class="p-2 text-center">Уникальные</th>
+          </tr>
+        </thead>
+        <tbody id="referrers-body"></tbody>
       </table>
     </div>
 
-    <footer>
-      <p>Сделано с ❤️ by <a href="https://github.com/KiryaScript" target="_blank">KiryaScript</a></p>
-      <p><a href="https://github.com/KiryaScript/discord-fix-app" target="_blank">Открыть исходники на GitHub</a></p>
-    </footer>
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-2xl font-semibold mb-4">📂 Популярный контент</h2>
+      <div id="paths-loading" class="text-center">Загрузка данных...</div>
+      <div id="paths-error" class="hidden text-center text-red-600">Нет данных о популярном контенте</div>
+      <table id="paths-table" class="hidden w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="p-2">Ссылка</th>
+            <th class="p-2 text-center">Просмотры</th>
+            <th class="p-2 text-center">Уникальные</th>
+          </tr>
+        </thead>
+        <tbody id="paths-body"></tbody>
+      </table>
+    </div>
+
+    <div class="text-center">
+      <p class="mb-4">Сделано с ❤️ by KiryaScript</p>
+      <a href="https://github.com/KiryaScript/discord-fix-app" class="text-blue-600 hover:underline">Открыть исходники на GitHub</a>
+    </div>
   </div>
 
   <script>
-    // Функция для форматирования даты
-    function formatDate(dateString) {
-      if (!dateString) return 'неизвестно';
+    async function loadStats() {
       try {
-        const date = new Date(dateString);
-        return date.toLocaleString('ru-RU', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      } catch (e) {
-        return dateString;
-      }
-    }
+        const response = await fetch('stats.json');
+        if (!response.ok) throw new Error('Failed to load stats.json');
+        const data = await response.json();
 
-    // Функция для форматирования дат в графике
-    function formatChartDate(dateString) {
-      // Обрабатываем формат 2025-07/13 или 07-13
-      const parts = dateString.replace(/\//g, '-').split('-');
-      let month, day;
-      if (parts.length === 3) {
-        // Формат 2025-07-13
-        month = parseInt(parts[1], 10);
-        day = parseInt(parts[2], 10);
-      } else if (parts.length === 2) {
-        // Формат 07-13
-        month = parseInt(parts[0], 10);
-        day = parseInt(parts[1], 10);
-      } else {
-        return dateString;
-      }
-      return `${day} июля`;
-    }
+        // Обновляем статистику
+        document.getElementById('stats-loading').classList.add('hidden');
+        document.getElementById('stats-content').classList.remove('hidden');
+        document.getElementById('total-views').textContent = data.views.total || 0;
+        document.getElementById('unique-visitors').textContent = data.views.uniques || 0;
+        document.getElementById('last-update').textContent = new Date().toLocaleDateString('ru-RU');
 
-    // Удаление дубликатов дат
-    function dedupeDailyData(daily) {
-      const seen = new Map();
-      daily.forEach(item => {
-        const date = item.timestamp.replace(/\//g, '-'); // Нормализуем формат
-        seen.set(date, {
-          timestamp: date,
-          count: item.count || 0,
-          uniques: item.uniques || 0
-        });
-      });
-      return Array.from(seen.values()).sort((a, b) => {
-        const [aMonth, aDay] = a.timestamp.split('-').map(Number);
-        const [bMonth, bDay] = b.timestamp.split('-').map(Number);
-        return (aMonth * 100 + aDay) - (bMonth * 100 + bDay);
-      });
-    }
-
-    // Загружаем данные из stats.json
-    fetch("./stats.json") // Из корня сайта
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`Ошибка HTTP: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        console.log('Получены данные:', data);
-        
-        // Общая статистика
-        document.getElementById('totalViews').textContent = data.views?.total || 0;
-        document.getElementById('totalUniques').textContent = data.views?.uniques || 0;
-        document.getElementById('lastUpdated').textContent = formatDate(data.last_updated || new Date());
-        document.getElementById('totalStats').classList.remove('hidden');
-        
-        // Скрываем индикатор загрузки
-        document.getElementById('loadingStats').classList.add('hidden');
-
-        // График
-        if (data.views?.daily?.length > 0) {
-          const dedupedDaily = dedupeDailyData(data.views.daily);
-          const labels = dedupedDaily.map(d => formatChartDate(d.timestamp));
-          const views = dedupedDaily.map(d => d.count || 0);
-          const uniques = dedupedDaily.map(d => d.uniques || 0);
-
-          new Chart(document.getElementById("statsChart"), {
-            type: "line",
-            data: {
-              labels,
-              datasets: [
-                {
-                  label: "Просмотры",
-                  data: views,
-                  borderColor: "#00bfff",
-                  backgroundColor: "transparent",
-                  tension: 0.3
-                },
-                {
-                  label: "Уникальные",
-                  data: uniques,
-                  borderColor: "#66ff66",
-                  backgroundColor: "transparent",
-                  tension: 0.3
-                }
-              ]
-            },
-            options: {
-              responsive: true,
-              plugins: { 
-                legend: { 
-                  labels: { 
-                    color: "#fff",
-                    font: {
-                      family: "'Inter', sans-serif"
-                    }
-                  } 
-                } 
-              },
-              scales: {
-                x: { 
-                  ticks: { 
-                    color: "#aaa",
-                    font: {
-                      family: "'Inter', sans-serif"
-                    }
-                  } 
-                },
-                y: { 
-                  ticks: { 
-                    color: "#aaa",
-                    font: {
-                      family: "'Inter', sans-serif"
-                    }
-                  },
-                  beginAtZero: true
-                }
-              }
-            }
+        // Обновляем рефереры
+        const referrersBody = document.getElementById('referrers-body');
+        referrersBody.innerHTML = '';
+        if (data.referrers && data.referrers.length > 0) {
+          document.getElementById('referrers-loading').classList.add('hidden');
+          document.getElementById('referrers-table').classList.remove('hidden');
+          data.referrers.forEach(ref => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td class="p-2">${ref.referrer}</td>
+              <td class="p-2 text-center">${ref.count}</td>
+              <td class="p-2 text-center">${ref.uniques}</td>
+            `;
+            referrersBody.appendChild(row);
           });
-          document.getElementById('statsChart').classList.remove('hidden');
         } else {
-          document.getElementById('errorStats').textContent = '⚠️ Нет данных для графика';
-          document.getElementById('errorStats').classList.remove('hidden');
+          document.getElementById('referrers-loading').classList.add('hidden');
+          document.getElementById('referrers-error').classList.remove('hidden');
         }
 
-        // Referring Sites
-        document.getElementById('loadingRefs').classList.add('hidden');
-        if (data.referrers?.length > 0) {
-          const refTable = document.getElementById("refTable");
-          data.referrers
-            .sort((a, b) => (b.count || 0) - (a.count || 0))
-            .forEach(r => {
-              const referrer = r.referrer || 'Прямые переходы';
-              const row = `<tr><td>${referrer}</td><td>${r.count || 0}</td><td>${r.uniques || 0}</td></tr>`;
-              refTable.insertAdjacentHTML("beforeend", row);
-            });
-          document.getElementById('refTable').classList.remove('hidden');
+        // Обновляем популярный контент
+        const pathsBody = document.getElementById('paths-body');
+        pathsBody.innerHTML = '';
+        if (data.paths && data.paths.length > 0) {
+          document.getElementById('paths-loading').classList.add('hidden');
+          document.getElementById('paths-table').classList.remove('hidden');
+          data.paths.forEach(path => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td class="p-2">${path.path}</td>
+              <td class="p-2 text-center">${path.count}</td>
+              <td class="p-2 text-center">${path.uniques}</td>
+            `;
+            pathsBody.appendChild(row);
+          });
         } else {
-          document.getElementById('emptyRefs').classList.remove('hidden');
+          document.getElementById('paths-loading').classList.add('hidden');
+          document.getElementById('paths-error').classList.remove('hidden');
         }
+      } catch (error) {
+        console.error('Ошибка загрузки статистики:', error);
+        document.getElementById('stats-loading').classList.add('hidden');
+        document.getElementById('stats-error').classList.remove('hidden');
+        document.getElementById('referrers-loading').classList.add('hidden');
+        document.getElementById('referrers-error').classList.remove('hidden');
+        document.getElementById('paths-loading').classList.add('hidden');
+        document.getElementById('paths-error').classList.remove('hidden');
+      }
+    }
 
-        // Popular Content
-        document.getElementById('loadingPaths').classList.add('hidden');
-        if (data.paths?.length > 0) {
-          const pathTable = document.getElementById("pathTable");
-          data.paths
-            .sort((a, b) => (b.count || 0) - (a.count || 0))
-            .forEach(p => {
-              const path = p.path || 'Неизвестно';
-              const row = `<tr><td>${path}</td><td>${p.count || 0}</td><td>${p.uniques || 0}</td></tr>`;
-              pathTable.insertAdjacentHTML("beforeend", row);
-            });
-          document.getElementById('pathTable').classList.remove('hidden');
-        } else {
-          document.getElementById('emptyPaths').classList.remove('hidden');
-        }
-      })
-      .catch(err => {
-        console.error("Ошибка загрузки статистики:", err);
-        document.getElementById('loadingStats').classList.add('hidden');
-        document.getElementById('errorStats').classList.remove('hidden');
-        
-        document.getElementById('loadingRefs').classList.add('hidden');
-        document.getElementById('emptyRefs').classList.remove('hidden');
-        
-        document.getElementById('loadingPaths').classList.add('hidden');
-        document.getElementById('emptyPaths').classList.remove('hidden');
-      });
+    // Загружаем статистику при загрузке страницы
+    window.onload = loadStats;
   </script>
 </body>
 </html>
