@@ -20,22 +20,24 @@ def setup_driver():
     return driver
 
 def wait_for_login(driver):
-    print("Залогинься в GitHub и перейди на страницу трафика. Даю 3 минуты.")
-    driver.get("https://github.com/login")
+    print("Ожидаю, что вы уже авторизованы и находитесь на странице трафика.")
     try:
-        WebDriverWait(driver, 180).until(EC.url_contains("/graphs/traffic"))
+        # Проверяем, что мы на странице трафика и нужный блок загружен
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div#traffic-visitors-graph"))
+        )
         print("На странице трафика.")
-    except:
-        print("Не успел залогиниться.")
-        raise
+    except Exception as e:
+        print("Не удалось обнаружить страницу трафика.")
+        raise e
 
 def parse_graph_data(driver, graph_selector, max_views, max_uniques):
     try:
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, graph_selector)))
-        time.sleep(3)
-    except:
-        print(f"График {graph_selector} не прогрузился.")
-        raise
+        time.sleep(2)
+    except Exception as e:
+        print(f"График {graph_selector} не прогрузился: {e}")
+        return []
 
     views_data = []
     try:
@@ -73,6 +75,9 @@ def parse_graph_data(driver, graph_selector, max_views, max_uniques):
 def parse_summary_stats(driver, label):
     try:
         selector = f".Box:has(.js-traffic-total.{label})"
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, f"{selector} .js-traffic-total.{label}"))
+        )
         total = int(driver.find_element(By.CSS_SELECTOR, f"{selector} .js-traffic-total.{label}").text.replace(",", ""))
         uniques = int(driver.find_element(By.CSS_SELECTOR, f"{selector} .js-traffic-uniques.uniques").text.replace(",", ""))
         return total, uniques
@@ -85,7 +90,11 @@ def parse_table_data(driver, heading_text, title_col):
     try:
         print(f"Ищем блок с заголовком: {heading_text}")
         block = driver.find_element(By.XPATH, f"//h3[contains(text(), '{heading_text}')]/ancestor::div[contains(@class, 'Box')]")
-        table = block.find_element(By.TAG_NAME, "table")
+        tables = block.find_elements(By.TAG_NAME, "table")
+        if not tables:
+            print(f"Таблица не найдена для {heading_text}")
+            return []
+        table = tables[0]
         rows = table.find_elements(By.CSS_SELECTOR, "tbody tr")
         for row in rows:
             cols = row.find_elements(By.TAG_NAME, "td")
